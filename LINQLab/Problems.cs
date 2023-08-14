@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using LINQLab.Models;
 using System.Collections.Generic;
 using System.Data;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using System.Drawing.Printing;
 
 namespace LINQLab
 {
@@ -22,7 +24,7 @@ namespace LINQLab
             //RProblemOne();
             //RDemoTwo();
             //RProblemTwo();
-            //RProblemThree();
+            //RProblemThree(); not done
             //RProblemFour();
             //RProblemFive();
 
@@ -69,6 +71,10 @@ namespace LINQLab
         {
             // Print the COUNT of all the users from the User table.
 
+            var usersCount = _context.Users.Count();
+
+            Console.WriteLine();
+            Console.WriteLine($"RProblemOne: users count: \n{usersCount}");
         }
 
         /*
@@ -92,6 +98,23 @@ namespace LINQLab
             // Write a LINQ query that gets each product whose price is less than or equal to $100.
             // Print the name and price of all products
 
+            var productsPrice100OrLess2 = _context.Products.Where(p => p.Price <= 100);
+            Console.WriteLine("Problem Two: products <= 100 ");
+            foreach (Product product in productsPrice100OrLess2)
+            {
+                Console.WriteLine($"{product.Name}\n{product.Price}");
+            }
+
+            //The second way just in case
+            //var productsPrice100OrLess = _context.Products.Where(p => p.Price <= 100)
+            //                                              .Select(p => $"{p.Name}\n{p.Price}");
+            //Console.WriteLine("Problem Two: products <= 100 ");
+            //foreach (string product in productsPrice100OrLess)
+            //{
+            //    Console.WriteLine(product);
+            //}
+
+
         }
 
         /*
@@ -110,6 +133,8 @@ namespace LINQLab
         public void RProblemThree()
         {
             // Write a LINQ query that gets each product whose name that CONTAINS an "s".
+
+            
         }
         /*
             Expected Result:
@@ -129,6 +154,22 @@ namespace LINQLab
         {
             // Write a LINQ query that gets all the users who registered BEFORE 2016.
             // Then print each user's email and registration date to the console.
+            var usersRegBefore2016 = _context.Users.Where(u => u.RegistrationDate < new DateTime(2016, 1, 1)).ToList();
+            Console.WriteLine("RProblemFour:");
+            foreach (User user in usersRegBefore2016)
+            {
+                Console.WriteLine($"Email: {user.Email}\nRegistration Date: {user.RegistrationDate}");
+            }
+
+            //The second way just in case
+            //var usersRegBefore20162 = _context.Users.Where(u => u.RegistrationDate < new DateTime(2016, 1, 1))
+            //                                        .Select(u => $"Email: {u.Email}\nRegistration Date: {u.RegistrationDate}").ToList();
+
+            //Console.WriteLine("RProblemFour:");
+            //foreach(string user in usersRegBefore20162)
+            //{
+            //    Console.WriteLine(user);
+            //}
 
         }
         /*
@@ -145,6 +186,13 @@ namespace LINQLab
             // Write a LINQ query that gets all of the users who registered AFTER 2016 and BEFORE 2018.
             // Then print each user's email and registration date to the console.
 
+            var usersRegAfter2016andBefore2018 = _context.Users.Where(u => u.RegistrationDate > new DateTime(2016,1,1))
+                                                                  .Where(u => u.RegistrationDate < new DateTime(2018,1,1));
+            Console.WriteLine("PRoblemFive");
+            foreach(User user in usersRegAfter2016andBefore2018)
+            {
+                Console.WriteLine($"Email: {user.Email}\nRegistration Date: {user.RegistrationDate}");
+            }
         }
         /*
             Expected Result:
