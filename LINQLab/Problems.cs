@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Data;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Drawing.Printing;
+using Org.BouncyCastle.Crypto.Macs;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace LINQLab
 {
@@ -24,7 +26,7 @@ namespace LINQLab
             //RProblemOne();
             //RDemoTwo();
             //RProblemTwo();
-            //RProblemThree(); not done
+            //RProblemThree();
             //RProblemFour();
             //RProblemFive();
 
@@ -32,7 +34,7 @@ namespace LINQLab
             //RDemoThree();
             //RProblemSix();
             //RProblemSeven();
-            //RProblemEight();
+            //RProblemEight(); // done;
 
             //// <><><><><><><><> CUD (Create, Update, Delete) Actions <><><><><><><><><>
 
@@ -134,7 +136,12 @@ namespace LINQLab
         {
             // Write a LINQ query that gets each product whose name that CONTAINS an "s".
 
-            
+            var productsWithS = _context.Products.Where(pr => pr.Name.Contains("s"));
+
+            foreach (var product in productsWithS)
+            {
+                Console.WriteLine($"Name: {product.Name}");
+            }
         }
         /*
             Expected Result:
@@ -186,10 +193,10 @@ namespace LINQLab
             // Write a LINQ query that gets all of the users who registered AFTER 2016 and BEFORE 2018.
             // Then print each user's email and registration date to the console.
 
-            var usersRegAfter2016andBefore2018 = _context.Users.Where(u => u.RegistrationDate > new DateTime(2016,1,1))
-                                                                  .Where(u => u.RegistrationDate < new DateTime(2018,1,1));
+            var usersRegAfter2016andBefore2018 = _context.Users.Where(u => u.RegistrationDate > new DateTime(2016, 1, 1))
+                                                                  .Where(u => u.RegistrationDate < new DateTime(2018, 1, 1));
             Console.WriteLine("PRoblemFive");
-            foreach(User user in usersRegAfter2016andBefore2018)
+            foreach (User user in usersRegAfter2016andBefore2018)
             {
                 Console.WriteLine($"Email: {user.Email}\nRegistration Date: {user.RegistrationDate}");
             }
@@ -206,7 +213,10 @@ namespace LINQLab
         private void RDemoThree()
         {
             // This LINQ query will retreive all of the users who are assigned to the role of Customer.
-            var customerUsers = _context.UserRoles.Include(ur => ur.Role).Include(ur => ur.User).Where(ur => ur.Role.RoleName == "Customer");
+            var customerUsers = _context.UserRoles.Include(ur => ur.Role)
+                                                  .Include(ur => ur.User)
+                                                  .Where(ur => ur.Role.RoleName == "Customer");
+
             Console.WriteLine("RDemoThree: Customer Users");
             foreach (UserRole userrole in customerUsers)
             {
@@ -218,7 +228,14 @@ namespace LINQLab
             // Write a LINQ query that retrieves all of the products in the shopping cart of the user who has the email "afton@gmail.com".
             // Then print the product's name, price, and quantity to the console.
 
+            var productsOfEmailAftonAtgmailcom = _context.ShoppingCartItems.Where(user => user.User.Email == "afton@gmail.com")
+                                                                           .Include(product => product.Product);
 
+            Console.WriteLine("PRoblemSix");
+            foreach (var product in productsOfEmailAftonAtgmailcom)
+            {
+                Console.WriteLine($"Name: {product.Product.Name}\nPrice: {product.Product.Price}\nQuantity: {product.Quantity}");
+            }
         }
         /*
             Expected Result:
@@ -242,11 +259,12 @@ namespace LINQLab
         public void RProblemSeven()
         {
             // Write a LINQ query that retrieves all of the products in the shopping cart of the user who has the email "oda@gmail.com" and returns the sum of all of the products prices.
-            // HINT: End of query will be: .Select(sc => sc.Product.Price).Sum();
+            // HINT: End of query will be: ;
             // Print the total of the shopping cart to the console.
             // Remember to break the problem down and take it one step at a time!
 
-
+            var productsOdagmailcomSum = _context.ShoppingCartItems.Where(user => user.User.Email == "oda@gmail.com")
+                                                                   .Select(sc => sc.Product.Price).Sum();
         }
         /*
          Total: $715.34
@@ -257,6 +275,25 @@ namespace LINQLab
             // Write a query that retrieves all of the products in the shopping cart of users who have the role of "Employee".
             // Then print the product's name, price, and quantity to the console along with the email of the user that has it in their cart.
 
+            
+
+            var temp = _context.ShoppingCartItems.Select(pr => pr.Product);
+                                                 
+                                                 
+            foreach(var product in temp)
+            {
+                Console.WriteLine(product.Name);
+            }
+
+            //var temp = _context.UserRoles.Where(role => role.Role.RoleName == "Employee")
+            //                             .Include(user => user.User.ShoppingCartItems).ToList();
+
+
+
+            //var productsOFEmployees = _context.ShoppingCartItems.Include(user => user.User.UserRoles).Where(Us)
+            //                                                    .Include(role => role.UserId.)
+
+
         }
         /*
             Expected Result
@@ -266,7 +303,6 @@ namespace LINQLab
             Product name: Apple Watch Series 3
             Price: 169.00
             Quantity:5
-
 
 
             User's email: janett@gmail.com
@@ -305,8 +341,17 @@ namespace LINQLab
         private void CProblemOne()
         {
             // Create a new Product object and add that product to the Products table. Choose any name and product info you like.
-
-
+            Product newProduct = new Product()
+            { 
+                Name = "Tea",
+                Description = "Kambucha Tea with Mint",
+                Price = 4.99M
+            };
+            Console.WriteLine($"Created a new product {newProduct.Name}");
+            _context.Products.Add(newProduct);
+            Console.WriteLine("Added a product to the database");
+            _context.SaveChanges();
+            Console.WriteLine("Saved the changes");
         }
 
         public void CDemoTwo()
@@ -328,8 +373,20 @@ namespace LINQLab
         {
             // Create a new ShoppingCartItem to represent the new product you created in CProblemOne being added to the shopping cart of the user created in CDemoOne.
             // This will add a new row to ShoppingCart junction table.
+            var userId = _context.Users.Where(user => user.Email == "david@gmail.com")
+                                       .Select(r => r.Id).SingleOrDefault();
+            var productId = _context.Products.Where(product => product.Name == "Tea")
+                                       .Select(productId => productId.Id).SingleOrDefault();
 
+            ShoppingCartItem newShopItem = new ShoppingCartItem()
+            {
+                UserId = userId,
+                ProductId = productId,
+                Quantity = 5
+            };
 
+            _context.ShoppingCartItems.Add(newShopItem);
+            _context.SaveChanges(); 
         }
 
 
