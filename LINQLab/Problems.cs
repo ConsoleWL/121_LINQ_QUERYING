@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Query.Internal;
 using System.Drawing.Printing;
 using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Asn1.X509;
+using Org.BouncyCastle.Asn1.X509.SigI;
 
 namespace LINQLab
 {
@@ -50,9 +51,12 @@ namespace LINQLab
             //UProblemTwo();
 
             //// <><> D Actions (Delete) <><>
-            //DDemoOne();
-            DProblemOne();
+            //DDemoOne(); // not done
+            //DProblemOne();
             //DProblemTwo();
+
+            // <><><><><><><><> BONUS PROBLEMS <><><><><><><><><>
+            BonusOne();
         }
 
         // <><><><><><><><> R Actions (Read) <><><><><><><><><>
@@ -275,9 +279,10 @@ namespace LINQLab
             // Write a query that retrieves all of the products in the shopping cart of users who have the role of "Employee".
             // Then print the product's name, price, and quantity to the console along with the email of the user that has it in their cart.
 
-            
+
 
             var temp = _context.ShoppingCartItems.Select(pr => pr.Product);
+                                                 
                                                  
                                                  
             foreach(var product in temp)
@@ -417,19 +422,27 @@ namespace LINQLab
             // HINT: You need to delete the existing role relationship and then create a new Userrole object and add it to the Userroles table
             // See the DDemoOne below as an example of removing a role relationship
             var userDan = _context.UserRoles.Where(ur => ur.User.Email == "dan@gmail.com").SingleOrDefault();
+            Console.WriteLine($"Got the user whos email dan@gmail.com");
             _context.UserRoles.Remove(userDan);
+            Console.WriteLine("Removing that UserRole from DB");
             _context.SaveChanges();
+            Console.WriteLine("Saving Changes");
 
             var roleId = _context.Roles.Where(r => r.RoleName == "Employee").Select(r => r.Id).SingleOrDefault();
+            Console.WriteLine("Got new RoleId");
             var userDanId = _context.Users.Where(u => u.Email == "dan@gmail.com").Select(u => u.Id).SingleOrDefault();
+            Console.WriteLine("Got the user Dan id");
 
             UserRole userDanNewRole = new UserRole()
             {
-                UserId = roleId,
+                UserId = userDanId,
                 RoleId = roleId
             };
+            Console.WriteLine("Creating Dan a new UserRole");
             _context.UserRoles.Add(userDanNewRole);
+            Console.WriteLine("Adding it to the DB");
             _context.SaveChanges();
+            Console.WriteLine("Saving Changes");
 
         }
 
@@ -450,6 +463,15 @@ namespace LINQLab
             // Delete all of the product relationships to the user with the email "oda@gmail.com" in the ShoppingCart table using LINQ.
             // HINT: Use a Loop
 
+            //var userOdaId = _context.Users.Where(u => u.Email == "oda@gmail.com").Select(u => u.Id).SingleOrDefault();
+            //var scCount = _context.ShoppingCartItems.Count();
+
+            //for (int i = 0; i < scCount; i++)
+            //{
+            //    _context.ShoppingCartItems.Where(user=> user.UserId == userOdaId).
+            //}
+            
+
         }
 
         private void DProblemTwo()
@@ -469,6 +491,15 @@ namespace LINQLab
             // Print "Signed In!" to the console if they exists and the values match otherwise print "Invalid Email or Password.".
 
             Console.WriteLine("Enter Email: ");
+            string inputEmail = Console.ReadLine();
+            Console.WriteLine("Enter Password:");
+            string inputPassword = Console.ReadLine();
+
+
+            var result = _context.Users.Where(u => u.Email == inputEmail).Where(u => u.Password == inputPassword);
+                                      
+            
+            
 
         }
 
