@@ -34,7 +34,7 @@ namespace LINQLab
             //RDemoThree();
             //RProblemSix();
             //RProblemSeven();
-            //RProblemEight(); // done;
+            //RProblemEight(); // not done;
 
             //// <><><><><><><><> CUD (Create, Update, Delete) Actions <><><><><><><><><>
 
@@ -51,7 +51,7 @@ namespace LINQLab
 
             //// <><> D Actions (Delete) <><>
             //DDemoOne();
-            //DProblemOne();
+            DProblemOne();
             //DProblemTwo();
         }
 
@@ -405,8 +405,10 @@ namespace LINQLab
         private void UProblemOne()
         {
             // Update the price of the product you created in CProblemOne to something different using LINQ.
-
-
+            var productTea = _context.Products.Where(u => u.Name == "Tea").SingleOrDefault();
+            productTea.Name = "Green Tea";
+            _context.Products.Update(productTea);
+            _context.SaveChanges();
         }
 
         private void UProblemTwo()
@@ -414,6 +416,20 @@ namespace LINQLab
             // Change the role of the user we created to "Employee"
             // HINT: You need to delete the existing role relationship and then create a new Userrole object and add it to the Userroles table
             // See the DDemoOne below as an example of removing a role relationship
+            var userDan = _context.UserRoles.Where(ur => ur.User.Email == "dan@gmail.com").SingleOrDefault();
+            _context.UserRoles.Remove(userDan);
+            _context.SaveChanges();
+
+            var roleId = _context.Roles.Where(r => r.RoleName == "Employee").Select(r => r.Id).SingleOrDefault();
+            var userDanId = _context.Users.Where(u => u.Email == "dan@gmail.com").Select(u => u.Id).SingleOrDefault();
+
+            UserRole userDanNewRole = new UserRole()
+            {
+                UserId = roleId,
+                RoleId = roleId
+            };
+            _context.UserRoles.Add(userDanNewRole);
+            _context.SaveChanges();
 
         }
 
@@ -423,8 +439,8 @@ namespace LINQLab
         {
             // Delete the role relationship from the user who has the email "oda@gmail.com" using LINQ.
             var userrole = _context.UserRoles.Where(ur => ur.User.Email == "oda@gmail.com").SingleOrDefault();
-            _context.UserRoles.Remove(userrole);
 
+            _context.UserRoles.Remove(userrole);
             _context.SaveChanges();
 
         }
