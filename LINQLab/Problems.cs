@@ -35,7 +35,7 @@ namespace LINQLab
             //RDemoThree();
             //RProblemSix();
             //RProblemSeven();
-            //RProblemEight(); // not done;
+            RProblemEight(); // not done;
 
             //// <><><><><><><><> CUD (Create, Update, Delete) Actions <><><><><><><><><>
 
@@ -56,7 +56,11 @@ namespace LINQLab
             //DProblemTwo();
 
             // <><><><><><><><> BONUS PROBLEMS <><><><><><><><><>
-            BonusOne();
+            //BonusOne();
+
+            // <><><><><><><><> MY PROBLEMS =) <><><><><><><><><>
+            //GetAllUsers();
+            //GetUserById(3);
         }
 
         // <><><><><><><><> R Actions (Read) <><><><><><><><><>
@@ -218,8 +222,9 @@ namespace LINQLab
         {
             // This LINQ query will retreive all of the users who are assigned to the role of Customer.
             var customerUsers = _context.UserRoles.Include(ur => ur.Role)
-                                                  .Include(ur => ur.User)
+                                                  .Include(ur => ur.User)                        
                                                   .Where(ur => ur.Role.RoleName == "Customer");
+
 
             Console.WriteLine("RDemoThree: Customer Users");
             foreach (UserRole userrole in customerUsers)
@@ -279,24 +284,68 @@ namespace LINQLab
             // Write a query that retrieves all of the products in the shopping cart of users who have the role of "Employee".
             // Then print the product's name, price, and quantity to the console along with the email of the user that has it in their cart.
 
+            
+            // Products
+            var productsId = _context.Products.Select(prod => prod.Id);
+            var productsName = _context.Products.Select(prod => prod.Name);
+            var productsDesc = _context.Products.Select(prod => prod.Description);
+            var productPrice = _context.Products.Select(prod => prod.Price);
+
+            var products = _context.Products;
+
+            //foreach (Product p in products)
+            //{
+            //    Console.WriteLine($"{p.Id}");
+            //    Console.WriteLine($"{p.Name}");
+            //    Console.WriteLine($"{p.Description}");
+            //    Console.WriteLine($"{p.Price}\n");
+            //}
+
+            // Roles
+            var rolesId = _context.Roles.Select(role => role.Id);
+            var rolesName = _context.Roles.Select(role => role.RoleName);
+            var roles = _context.Roles;
+
+            //foreach (Role r in roles)
+            //{
+            //    Console.WriteLine($"{r.Id}");
+            //    Console.WriteLine($"{r.RoleName}\n");
+            //}
+
+            // User Roles
+            var userRolesId = _context.UserRoles.Select(ur => ur.Id);
+            var userRolesUserId = _context.UserRoles.Select(ur => ur.UserId);
+            var userRolesRoleId = _context.UserRoles.Select(ur => ur.RoleId);
+            var userRoles = _context.UserRoles;
 
 
-            var temp = _context.ShoppingCartItems.Select(pr => pr.Product);
-                                                 
-                                                 
-                                                 
-            foreach(var product in temp)
-            {
-                Console.WriteLine(product.Name);
-            }
+            //foreach(var ur in userRoles)
+            //{
+            //    Console.WriteLine($"User Role Id {ur.Id}");
+            //    Console.WriteLine($"User Id: {ur.UserId}");
+            //    Console.WriteLine($"RoleId: {ur.RoleId}");
+            //}
 
-            //var temp = _context.UserRoles.Where(role => role.Role.RoleName == "Employee")
-            //                             .Include(user => user.User.ShoppingCartItems).ToList();
+            // Users
+            var userId = _context.Users.Select(u => u.Id);
+            var userEmail = _context.Users.Select(u => u.Email);
+            var userPassword = _context.Users.Select(u => u.Password);
+            var userRegTime = _context.Users.Select(u => u.RegistrationDate);
+
+            var user = _context.Users;
+
+            //foreach(var u in user)
+            //{
+            //    Console.WriteLine($"{u.Id}");
+            //    Console.WriteLine($"{u.Email}");
+            //    Console.WriteLine($"{u.Password}");
+            //    Console.WriteLine($"{u.RegistrationDate}\n");
+            //}
 
 
 
-            //var productsOFEmployees = _context.ShoppingCartItems.Include(user => user.User.UserRoles).Where(Us)
-            //                                                    .Include(role => role.UserId.)
+           // var temp = _context.ShoppingCartItems.Select(_context.UserRoles.Where
+
 
 
         }
@@ -522,6 +571,22 @@ namespace LINQLab
             // -Display "Invalid Email or Password"
             // -Re-prompt the user for credentials
 
+        }
+
+        public  void GetAllUsers()
+        {
+            var users = _context.Users.ToList();
+            Console.WriteLine(users.Count().ToString());
+        }
+
+        public void GetUserById(int findId)
+        {
+            // How to make it here if 
+            var user = _context.Users.Where(u => u.Id == findId);
+            //if(user != null)
+            //{
+            //    Console.WriteLine($"{user});
+            //}
         }
 
     }
